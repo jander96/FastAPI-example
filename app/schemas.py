@@ -8,6 +8,7 @@ class User(BaseModel): #Schema
     apellido: str
     direccion: Optional[str]
     telefono: int
+    correo: str
     creacion_user: datetime = datetime.now()
     
 class UserId(BaseModel):
