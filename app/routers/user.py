@@ -9,8 +9,9 @@ router = APIRouter(prefix='/user', tags= ["Users"])
 
 
 @router.get('/{user_id}/')
-async def get_user(user_id: int):
-    return {"response": f"{user_id} recuperado"}
+async def get_user(user_id: int,db: Session = Depends(get_db)):
+    user = db.query(models.User).filter(models.User.id == user_id).first() # si se usa one y no existe el registro se lanza una exception
+    return user
 
 
 
@@ -37,12 +38,18 @@ async def crear_usuario(user: UserBody, db: Session = Depends(get_db)):
 
 
 @router.delete('/')
-async def delete_user(user_id: int):
-  return {"response": f"Usuario {user_id} eliminado"}
+async def delete_user(user_id: int, db: Session = Depends(get_db)):
+    db.query(models.User).filter(models.User.id == user_id).delete()
+    db.commit()
+    return {"response": f"Usuario {user_id} eliminado"}
 
 @router.put('/{user_id}/')
-async def delete_user(user_id: int, new_user: UserBody):
-    return {"response": f"Usuario {user_id} no encontrado"}
+async def update_user(user_id: int, new_user: UserBody,db: Session = Depends(get_db)):
+    user_updated_id = db.query(models.User).filter(models.User.id == user_id).update(
+        new_user.dict()
+    )
+    db.commit()
+    return {"user_id": user_updated_id}
 
 
 
