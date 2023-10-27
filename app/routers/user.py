@@ -1,61 +1,48 @@
 from fastapi import APIRouter,Depends
-from app.schemas import User, UserId
+from app.schemas import UserBody, UserId
 from app.db.database import get_db
 from sqlalchemy.orm import Session
 from app.db import models
 
 router = APIRouter(prefix='/user', tags= ["Users"])
 
-usuarios : list[User] = []
-
-@router.get('/ruta1')
-async def ruta1():
-    return {'mensaje':'Bienvenido a tu primer servidor FastApi'}
-
 
 
 @router.get('/{user_id}/')
 async def get_user(user_id: int):
-    for user in usuarios:
-        if user.id == user_id:
-            return {"usuario": user}
-    return {"response": "Usuario no encontrado"}
+    return {"response": f"{user_id} recuperado"}
 
-@router.post('/')
-async def get_user_by_body(user_id: UserId):
-    for user in usuarios:
-        if user.id == user_id.id:
-            return {"usuario": user}
-    return {"response": "Usuario no encontrado"}
+
 
 @router.get('/')
 async def get_users(db: Session = Depends(get_db)):
-    data = db.query(models.User).all()
-    print(data)
-    return usuarios
+    users = db.query(models.User).all()
+    return users
 
-@router.post('/crear_usuario/')
-async def crear_usuario(user: User):
-    usuarios.append(user)
+@router.post('/')
+async def crear_usuario(user: UserBody, db: Session = Depends(get_db)):
+    new_user= models.User(
+        username = user.username,
+        password = user.password,
+        nombre = user.nombre,
+        apellido = user.apellido,
+        direccion = user.direccion,
+        telefono= user.telefono,
+        correo = user.correo
+        )
+    db.add(new_user)
+    db.commit()
+    
     return {"respuesta": "Usuario creado correctamente"}
 
 
 @router.delete('/')
 async def delete_user(user_id: int):
-    for index, user in enumerate(usuarios):
-        if user.id == user_id:
-            usuarios.remove(user)
-            return {"usuario_eliminado": user.id}
-        
-    return {"response": "Usuario no encontrado"}
+  return {"response": f"Usuario {user_id} eliminado"}
 
 @router.put('/{user_id}/')
-async def delete_user(user_id: int, new_user: User):
-    for index, user in enumerate(usuarios):
-        if user.id == user_id:
-            usuarios[index] = new_user
-            return {"usuario_actualizado": usuarios[index]}
-    return {"response": "Usuario no encontrado"}
+async def delete_user(user_id: int, new_user: UserBody):
+    return {"response": f"Usuario {user_id} no encontrado"}
 
 
 

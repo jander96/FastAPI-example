@@ -4,7 +4,8 @@ from app.routers  import user
 from app.db.database import Base, engine
 
 def create_tables():
-    Base.metadata.create_all(bind= engine)
+    Base.metadata.create_all(engine)
+    
 create_tables()
 app = FastAPI(
     title= 'Proyecto para valorar peliculas', 

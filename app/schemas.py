@@ -2,14 +2,14 @@ from pydantic  import BaseModel # Para crear modelos de datos con validaciones y
 from typing import Optional   #Para  crear propiedades nullables o opcionales
 from datetime import datetime
 
-class User(BaseModel): #Schema
-    id:int
+class UserBody(BaseModel): #Schema
+    username:str
+    password: str
     nombre: str
     apellido: str
     direccion: Optional[str]
     telefono: int
     correo: str
-    creacion_user: datetime = datetime.now()
     
 class UserId(BaseModel):
     id: int
